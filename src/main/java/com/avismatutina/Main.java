@@ -1,4 +1,4 @@
-package com.lgt.dapi.garage;
+package com.avismatutina;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

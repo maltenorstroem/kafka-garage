@@ -1,4 +1,4 @@
-package com.lgt.dapi.garage.kafka;
+package com.avismatutina.kafka;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
