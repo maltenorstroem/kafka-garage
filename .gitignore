@@ -1,0 +1,23 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+.gradle-home
+
+# Ignore Gradle build output directory
+build
+
+# Ignore Intellij Idea specific directories
+.idea
+*.iml
+*.iws
+*.ipr
+out
+
+# Ignore Eclipse specific files and directories
+/subprojects/*/bin
+.project
+.classpath
+.settings/
+
+# Other ignored files
+.helm
+.DS_Store
