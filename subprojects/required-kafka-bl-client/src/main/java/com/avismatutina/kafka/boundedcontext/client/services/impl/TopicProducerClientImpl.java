@@ -1,19 +1,17 @@
-package com.avismatutina.kafka;
+package com.avismatutina.kafka.boundedcontext.client.services.impl;
 
+import com.avismatutina.kafka.boundedcontext.client.services.TopicProducerClient;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
-public class Producer {
-    private static final Logger log = LoggerFactory.getLogger(Producer.class);
+public class TopicProducerClientImpl implements TopicProducerClient {
 
-    public static void main(String[] args) {
-        log.info("I am a Kafka Producer");
+    @Override
+    public void produceMessage(String msg) {
 
         String bootstrapServers = "127.0.0.1:9092";
 
@@ -28,7 +26,7 @@ public class Producer {
 
         // create a producer record
         ProducerRecord<String, String> producerRecord =
-                new ProducerRecord<>("kafka_garage", "hello streams...");
+                new ProducerRecord<>("kafka_garage", msg);
 
         // send data - asynchronous
         producer.send(producerRecord);

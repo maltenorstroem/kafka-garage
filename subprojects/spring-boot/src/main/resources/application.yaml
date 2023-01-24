@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: KAFKA REST
+
+server:
+  port : 7070
