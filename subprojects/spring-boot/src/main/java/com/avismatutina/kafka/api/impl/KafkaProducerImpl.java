@@ -5,6 +5,8 @@ import com.avismatutina.type.DateValue;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.Callback;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +63,21 @@ public class KafkaProducerImpl {
                 new ProducerRecord<>("kafka_garage", msg);
 
         // send data - asynchronous
-        producer.send(producerRecord);
+        producer.send(producerRecord, new Callback() {
+                public void onCompletion(RecordMetadata recordMetadata, Exception e) {
+                    // executes every time a record is successfully sent or an exception is thrown
+                    if (e == null) {
+                        // the record was successfully sent
+                        LOG.info("Received new metadata. \n" +
+                                "Topic:" + recordMetadata.topic() + "\n" +
+                                "Partition: " + recordMetadata.partition() + "\n" +
+                                "Offset: " + recordMetadata.offset() + "\n" +
+                                "Timestamp: " + recordMetadata.timestamp());
+                    } else {
+                        LOG.error("Error while producing", e);
+                    }
+                }
+            });
 
         // flush data - synchronous
         producer.flush();

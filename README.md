@@ -17,3 +17,7 @@ $ bin/kafka-console-consumer.sh --topic kafka_garage --from-beginning --bootstra
 
 https://kafka.apache.org/quickstart
 
+## Protocol Buffer
+Source: /resources/proto
+Dest: /build/generated/proto/main/java
+
