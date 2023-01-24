@@ -39,7 +39,6 @@ public class KafkaProducerImpl {
 
         LOG.info("I am a Kafka Producer");
 
-        // TODO: 24.01.23 define Bean in config package
         this.topicProducerClient.produceMessage("Delegation to KafkaTopicMsgProducer");
 
         String bootstrapServers = "127.0.0.1:9092";
