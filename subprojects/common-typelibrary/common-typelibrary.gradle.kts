@@ -48,6 +48,10 @@ protobuf {
 		id ("doc") {
 			artifact = "io.github.pseudomuto:protoc-gen-doc:1.5.1"
 		}
+		id ("grpc") {
+			artifact = "io.grpc:protoc-gen-grpc-java:1.51.3"
+		}
+
 	}
 	generateProtoTasks {
 		ofSourceSet( "main").forEach {
