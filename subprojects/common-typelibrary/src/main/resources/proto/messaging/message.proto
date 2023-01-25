@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package com.avismatutina.type;
+
+option java_multiple_files = true;
+option java_package = "com.avismatutina.type";
+
+import "google/protobuf/any.proto";
+
+message MessageRequest{
+  string topic = 1;
+  string message= 2;
+  google.protobuf.Any optional_payload = 9;
+}
+
+message MessageMeta{
+  string topic = 1;
+  int32 partition = 2;
+  int64 offset = 3;
+  int64 timestamp = 4;
+}

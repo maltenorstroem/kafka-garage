@@ -1,9 +1,9 @@
 package com.avismatutina.kafka.boundedcontext.client.services.impl;
 
 import com.avismatutina.kafka.boundedcontext.client.services.TopicProducerClient;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
+import com.avismatutina.type.MessageMeta;
+import com.avismatutina.type.MessageRequest;
+import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.Properties;
@@ -11,7 +11,7 @@ import java.util.Properties;
 public class TopicProducerClientImpl implements TopicProducerClient {
 
     @Override
-    public void produceMessage(String msg) {
+    public MessageMeta produceMessage(MessageRequest msg) {
 
         String bootstrapServers = "127.0.0.1:9092";
 
@@ -26,14 +26,30 @@ public class TopicProducerClientImpl implements TopicProducerClient {
 
         // create a producer record
         ProducerRecord<String, String> producerRecord =
-                new ProducerRecord<>("kafka_garage", msg);
+                new ProducerRecord<>(msg.getTopic(), msg.getMessage());
 
         // send data - asynchronous
-        producer.send(producerRecord);
+        MessageMeta.Builder metaBuilder = MessageMeta.newBuilder();
+
+        producer.send(producerRecord, new Callback() {
+                public void onCompletion(RecordMetadata recordMetadata, Exception e) {
+                    // executes every time a record is successfully sent or an exception is thrown
+                    if (e == null) {
+                        // the record was successfully sent
+                        metaBuilder.setTopic(recordMetadata.topic());
+                        metaBuilder.setPartition(recordMetadata.partition());
+                        metaBuilder.setOffset(recordMetadata.offset());
+                        metaBuilder.setTimestamp(recordMetadata.timestamp());
+                    } else {
+                        // LOG.error("Error while producing", e);
+                    }
+                }
+            });
 
         // flush data - synchronous
         producer.flush();
         // flush and close producer
         producer.close();
+        return metaBuilder.build();
     }
 }

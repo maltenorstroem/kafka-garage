@@ -1,7 +1,8 @@
 package com.avismatutina.kafka.api.impl;
 
 import com.avismatutina.kafka.boundedcontext.client.services.TopicProducerClient;
-import com.avismatutina.type.DateValue;
+import com.avismatutina.type.MessageMeta;
+import com.avismatutina.type.MessageRequest;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.Properties;
 
 @RestController
-@RequestMapping("/api/v1/messages")
+@RequestMapping("/api/messages")
 public class KafkaProducerImpl {
 
     private static final Logger LOG = LoggerFactory.getLogger(KafkaProducerImpl.class);
@@ -36,18 +37,14 @@ public class KafkaProducerImpl {
         return new ArrayList<>();
     }
 
-    @PostMapping
-    public ResponseEntity<String> sendMsg(@RequestBody String msg)  {
+    @PostMapping (produces = "application/json")
+    public ResponseEntity<MessageMeta> sendMsg(@RequestBody MessageRequest msg)  {
 
-        LOG.info("I am a Kafka Producer");
+        LOG.info("/api/messages", msg);
 
-        this.topicProducerClient.produceMessage("Delegation to KafkaTopicMsgProducer");
+        this.topicProducerClient.produceMessage(msg);
 
         String bootstrapServers = "127.0.0.1:9092";
-
-        DateValue.Builder builder = DateValue.newBuilder();
-        builder.setValue("2023-1-25");
-        builder.setFormat("long");
 
         // create Producer properties
         Properties properties = new Properties();
@@ -60,9 +57,11 @@ public class KafkaProducerImpl {
 
         // create a producer record
         ProducerRecord<String, String> producerRecord =
-                new ProducerRecord<>("kafka_garage", msg);
+                new ProducerRecord<>(msg.getTopic(), msg.getMessage());
 
         // send data - asynchronous
+        MessageMeta.Builder metaBuilder = MessageMeta.newBuilder();
+
         producer.send(producerRecord, new Callback() {
                 public void onCompletion(RecordMetadata recordMetadata, Exception e) {
                     // executes every time a record is successfully sent or an exception is thrown
@@ -73,6 +72,11 @@ public class KafkaProducerImpl {
                                 "Partition: " + recordMetadata.partition() + "\n" +
                                 "Offset: " + recordMetadata.offset() + "\n" +
                                 "Timestamp: " + recordMetadata.timestamp());
+
+                        metaBuilder.setTopic(recordMetadata.topic());
+                        metaBuilder.setPartition(recordMetadata.partition());
+                        metaBuilder.setOffset(recordMetadata.offset());
+                        metaBuilder.setTimestamp(recordMetadata.timestamp());
                     } else {
                         LOG.error("Error while producing", e);
                     }
@@ -83,6 +87,6 @@ public class KafkaProducerImpl {
         producer.flush();
         // flush and close producer
         producer.close();
-        return new ResponseEntity<>(builder.getValue(), HttpStatus.OK);
+        return new ResponseEntity<>(metaBuilder.build(), HttpStatus.OK);
     }
 }

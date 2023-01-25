@@ -21,21 +21,11 @@ repositories {
 	mavenCentral()
 }
 
-sourceSets{
-	main {
-		proto {
-			proto.srcDir("src/main/resources/proto")
-		}
-		java {
-			srcDirs("build/generated/source/proto/main/java")
-		}
-	}
-}
-
 dependencies {
 	
+	implementation(project(":common-typelibrary"))
 	implementation(project(":required-kafka-bl-client"))
-	
+
 	implementation("org.springframework.boot:spring-boot-starter-jersey")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 
@@ -51,32 +41,6 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
-val generateProtoDocs by tasks.register<Copy>("generateProtoDocs") {
-	dependsOn("generateProto")
-	from(layout.buildDirectory.file("generated/source/proto/main/doc"))
-	into(layout.projectDirectory.file("doc"))
-}
-
 tasks.withType<Test> {
 	useJUnitPlatform()
-}
-
-protobuf {
-	protoc {
-		artifact = "com.google.protobuf:protoc:3.21.12"
-	}
-	plugins {
-		id ("doc") {
-			artifact = "io.github.pseudomuto:protoc-gen-doc:1.5.1"
-		}
-	}
-	generateProtoTasks {
-		ofSourceSet( "main").forEach {
-			it.plugins {
-				id("doc") {
-					options += "markdown,README.md,source_relative"
-				}
-			}
-		}
-	}
 }
